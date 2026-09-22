@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZulukCopy - Sistema de Gestión por Usuarios</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Variables de diseño avanzado - ESTILO GAMER NEON */
+        :root {
+            --primary-color: #00ffcc; /* Cyan Neón */
+            --success-color: #39ff14; /* Verde Neón */
+            --danger-color: #ff007f;  /* Rosa Neón */
+            --text-color: #f1f5f9;
+            --accent-purple: #9d4edd; /* Morado Eléctrico */
+            
+            /* Glassmorphic Cyberpunk */
+            --card-bg: rgba(11, 15, 25, 0.7);
+            --border-color: rgba(0, 255, 204, 0.2);
+            --input-bg: rgba(15, 23, 42, 0.8);
+            --config-item-bg: rgba(20, 30, 55, 0.6);
+            --glass-blur: blur(15px);
+            --shadow: 0 0 25px rgba(0, 255, 204, 0.15);
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #ff007f; /* Cambia a Rosa Neón en modo Alterno */
+            --border-color: rgba(255, 0, 127, 0.2);
+            --shadow: 0 0 25px rgba(255, 0, 127, 0.15);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.2s, box-shadow 0.2s; }
+        
+        body { 
+            background-color: #05070c; 
+            background-image: linear-gradient(rgba(0, 255, 204, 0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(0, 255, 204, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            background-attachment: fixed;
+            color: var(--text-color); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* LUCES DE NEÓN FLOTANTES GAMER */
+        .bg-glow-container { position: fixed; width: 100vw; height: 100vh; top:0; left:0; z-index: -1; pointer-events: none; overflow: hidden; }
+        .glow-orb { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.35; animation: floatOrb 10s infinite alternate ease-in-out; }
+        .orb-1 { width: 400px; height: 400px; background: var(--accent-purple); top: -5%; left: 10%; }
+        .orb-2 { width: 350px; height: 350px; background: #ff007f; bottom: 10%; right: 10%; animation-delay: -3s; }
+        .orb-3 { width: 300px; height: 300px; background: #00ffcc; top: 40%; left: 75%; animation-delay: -6s; }
+
+        @keyframes floatOrb {
+            0% { transform: translateY(0) scale(1) rotate(0deg); }
+            100% { transform: translateY(-50px) scale(1.15) rotate(30deg); }
+        }
+
+        /* Contenedor Principal Cyber Glass */
+        .container { 
+            width: 100%; 
+            max-width: 950px; 
+            background: var(--card-bg); 
+            padding: 35px; 
+            border-radius: 16px; 
+            box-shadow: var(--shadow); 
+            border: 2px solid var(--border-color); 
+            backdrop-filter: var(--glass-blur); 
+            -webkit-backdrop-filter: var(--glass-blur);
+            animation: fadeInSystem 0.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+            position: relative;
+            z-index: 1;
+        }
+
+        @keyframes fadeInSystem {
+            from { opacity: 0; transform: scale(0.95) translateY(20px); filter: blur(5px); }
+            to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+        }
+        
+        .hidden { display: none !important; }
+        h2, h3, h4 { font-weight: 800; letter-spacing: 1px; margin-bottom: 15px; text-transform: uppercase; text-shadow: 0 0 10px rgba(0, 255, 204, 0.3); }
+        
+        /* Formularios Estilo Gamer */
+        .auth-box { max-width: 420px; margin: 0 auto; padding: 10px; }
+        .auth-box h2 { text-align: center; color: var(--primary-color); text-shadow: 0 0 15px var(--primary-color); margin-bottom: 25px; font-size: 26px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; color: rgba(255,255,255,0.7); }
+        .form-group input, .form-group select { 
+            width: 100%; 
+            padding: 14px; 
+            border: 2px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 8px; 
+            font-size: 15px; 
+            background-color: var(--input-bg); 
+            color: #fff; 
+            outline: none; 
+            letter-spacing: 0.5px;
+        }
+        .form-group input:focus, .form-group select:focus { 
+            border-color: var(--primary-color); 
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+            background-color: rgba(15, 23, 42, 0.95);
+        }
+        
+        /* Botones Neón */
+        button { 
+            width: 100%; 
+            padding: 16px; 
+            border: none; 
+            background: linear-gradient(135deg, var(--accent-purple), #6200ea);
+            color: white; 
+            font-size: 14px; 
+            font-weight: 800; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            box-shadow: 0 0 15px rgba(157, 78, 221, 0.4); 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        button:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 0 25px var(--primary-color); 
+            background: var(--primary-color);
+            color: #000;
+        }
+        button:active { transform: translateY(0); }
+        
+        #view-login button {
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            box-shadow: inset 0 0 10px rgba(0, 255, 204, 0.2), 0 0 15px rgba(0, 255, 204, 0.2);
+        }
+        #view-login button:hover {
+            background: var(--primary-color);
+            color: #05070c;
+            box-shadow: 0 0 30px var(--primary-color);
+        }
+
+        .switch-auth { text-align: center; margin-top: 20px; font-size: 13px; color: rgba(255,255,255,0.5); cursor: pointer; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .switch-auth:hover { color: var(--primary-color); text-shadow: 0 0 8px var(--primary-color); }
+        
+        /* Encabezado */
+        .empresa-header { text-align: center; margin-bottom: 30px; }
+        .empresa-logo { width: 95px; height: 95px; border-radius: 50%; object-fit: cover; margin-bottom: 12px; border: 2px solid var(--primary-color); box-shadow: 0 0 15px var(--primary-color); }
+
+        /* Pestañas de Navegación */
+        .nav-tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 2px solid var(--border-color); padding-bottom: 12px; }
+        .tab-btn { background: none; color: var(--text-color); width: auto; padding: 10px 20px; font-size: 14px; font-weight: 700; opacity: 0.6; border: none; cursor: pointer; border-radius: 6px; text-transform: uppercase; }
+        .tab-btn:hover { background: rgba(0, 255, 204, 0.1); opacity: 0.9; color: var(--primary-color); }
+        .tab-btn.active { color: #000; background: var(--primary-color); opacity: 1; box-shadow: 0 0 15px var(--primary-color); }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        
+        .card { 
+            border: 2px solid var(--border-color); 
+            padding: 22px; 
+            border-radius: 12px; 
+            background: rgba(15, 23, 42, 0.4); 
+            box-shadow: inset 0 0 15px rgba(0, 255, 204, 0.02);
+        }
+        
+        .total-box { font-size: 22px; font-weight: 800; color: var(--primary-color); margin: 15px 0; text-shadow: 0 0 10px rgba(0, 255, 204, 0.4); }
+        .vuelto-box { font-size: 24px; font-weight: 800; color: var(--success-color); margin-bottom: 15px; text-shadow: 0 0 10px rgba(57, 255, 20, 0.4); }
+        
+        .report-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; text-align: center; margin-bottom: 22px; }
+        .report-card { 
+            background: rgba(15, 23, 42, 0.6); 
+            padding: 18px 15px; 
+            border-radius: 12px; 
+            border: 2px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        .report-card h4 { font-size: 11px; font-weight: 700; opacity: 0.6; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; text-shadow: none; }
+        .report-card p { font-size: 24px; font-weight: 800; position: relative; z-index: 1; color: #fff; }
+        
+        .badge-stock { padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; float: right; text-transform: uppercase; }
+        .stock-ok { background: rgba(57, 255, 20, 0.15); color: var(--success-color); border: 1px solid var(--success-color); }
+        .stock-low { background: rgba(255, 0, 127, 0.15); color: var(--danger-color); border: 1px solid var(--danger-color); }
+
+        .historial-box { margin-top: 20px; max-height: 300px; overflow-y: auto; border: 2px solid var(--border-color); border-radius: 12px; background: rgba(5, 7, 12, 0.5); }
+        .table-historial { width: 100%; border-collapse: collapse; text-align: left; }
+        .table-historial th, .table-historial td { padding: 14px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; }
+        .table-historial th { background: rgba(0, 255, 204, 0.05); font-weight: 700; color: var(--primary-color); text-transform: uppercase; font-size: 12px; letter-spacing: 1px; }
+        
+        .table-historial tbody tr:hover { background: rgba(0, 255, 204, 0.04); }
+        
+        .tag-pago { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; text-transform: uppercase; }
+        .tag-efectivo { background: rgba(57, 255, 20, 0.15); color: var(--success-color); border: 1px solid var(--success-color); }
+        .tag-yape { background: rgba(157, 78, 221, 0.15); color: #c084fc; border: 1px solid #c084fc; }
+
+        .tg-menu-group {
+            background: var(--config-item-bg);
+            border-radius: 12px;
+            margin-bottom: 22px;
+            border: 2px solid rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+        }
+        .tg-menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            cursor: pointer;
+        }
+        .tg-menu-item:last-child { border-bottom: none; }
+        .tg-menu-item:hover { background: rgba(0, 255, 204, 0.05); }
+        
+        .tg-item-left { display: flex; align-items: center; gap: 14px; font-size: 15px; font-weight: 600; }
+        .tg-item-left i { width: 20px; text-align: center; color: var(--primary-color); font-size: 17px; }
+        .tg-item-right { display: flex; align-items: center; gap: 10px; font-size: 13px; opacity: 0.7; }
+        .tg-arrow { font-size: 14px; opacity: 0.5; }
+        
+        .tg-panel-ajuste {
+            padding: 22px;
+            background: rgba(15, 23, 42, 0.5);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            margin-top: 12px;
+            animation: slideDown 0.25s ease-out;
+        }
+        @keyframes slideDown { from { opacity:0; transform: translateY(-5px); } to { opacity:1; transform: translateY(0); } }
+
+        /* NOTIFICACIONES TOAST */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .toast {
+            background: rgba(11, 15, 25, 0.9);
+            border: 2px solid var(--primary-color);
+            box-shadow: 0 0 15px var(--primary-color);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 280px;
+            animation: toastIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        .toast.success { border-color: var(--success-color); box-shadow: 0 0 15px var(--success-color); }
+        .toast.success i { color: var(--success-color); }
+        .toast.error { border-color: var(--danger-color); box-shadow: 0 0 15px var(--danger-color); }
+        .toast.error i { color: var(--danger-color); }
+        .toast.info i { color: var(--primary-color); }
+        @keyframes toastIn {
+            from { transform: translateX(100%) scale(0.9); opacity: 0; }
+            to { transform: translateX(0) scale(1); opacity: 1; }
+        }
+        @keyframes toastOut {
+            to { transform: translateX(120%); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="toast-container"></div>
+
+<div class="bg-glow-container">
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+</div>
+
+<div class="container">
+    <div id="header-empresa" class="empresa-header hidden">
+        <img id="logo-actual" class="empresa-logo" src="Gemini_Generated_Image_qp8csaqp8csaqp8c.jpeg" alt="Logo ZulukCopy">
+        <h2 id="nombre-empresa-txt">ZulukCopy</h2>
+        <p style="font-size: 13px; opacity: 0.7; margin-top: 4px;"><i class="fa-solid fa-user-circle"></i> USER OPERATIVO: <strong id="usuario-activo-txt" style="color:var(--primary-color); text-transform:uppercase;">-</strong></p>
+    </div>
+
+    <!-- Pantalla de Login (Sin duplicar logo ni nombre arriba) -->
+    <div id="view-login" class="auth-box">
+        <h2>ZulukCopy</h2>
+        <div class="form-group">
+            <label>Usuario Gamer / Admin</label>
+            <input type="text" id="login-user" placeholder="Ej. admin o peru">
+        </div>
+        <div class="form-group">
+            <label>Password de Acceso</label>
+            <input type="password" id="login-pass">
+        </div>
+        <button onclick="login()"><i class="fa-solid fa-terminal"></i> Iniciar Servidor</button>
+        <div class="switch-auth" onclick="mostrarPantalla('view-register')">¿No tienes cuenta? Registra nuevo perfil aquí</div>
+    </div>
+
+    <!-- Pantalla de Registro con verificación de contraseña obligatoria (2 veces) -->
+    <div id="view-register" class="auth-box hidden">
+        <h2><i class="fa-solid fa-user-plus" style="margin-right:10px;"></i>NUEVO PERFIL</h2>
+        <div class="form-group">
+            <label>ID Usuario Único</label>
+            <input type="text" id="reg-user" placeholder="Ej. peru">
+        </div>
+        <div class="form-group">
+            <label>Contraseña de Seguridad</label>
+            <input type="password" id="reg-pass" placeholder="Escribe tu contraseña">
+        </div>
+        <div class="form-group">
+            <label>Verificar Contraseña</label>
+            <input type="password" id="reg-pass-confirm" placeholder="Escribe tu contraseña nuevamente">
+        </div>
+        <button onclick="registrar()"><i class="fa-solid fa-floppy-disk"></i> Guardar Configuración</button>
+        <div class="switch-auth" onclick="mostrarPantalla('view-login')">Ya tengo cuenta, volver al inicio</div>
+    </div>
+
+    <div id="view-main" class="hidden">
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="cambiarTab('tab-ventas')"><i class="fa-solid fa-cash-register"></i> Terminal de Ventas</button>
+            <button class="tab-btn" onclick="cambiarTab('tab-reportes')"><i class="fa-solid fa-chart-line"></i> Estadísticas</button>
+            <button class="tab-btn" onclick="cambiarTab('tab-config')"><i class="fa-solid fa-sliders"></i> Panel Control</button>
+        </div>
+
+        <div id="tab-ventas" class="tab-content">
+            <div class="grid-2">
+                <div class="card">
+                    <h3><i class="fa-solid fa-basket-shopping" style="color:var(--primary-color);"></i> 1. Datos del Pedido</h3>
+                    
+                    <div class="form-group">
+                        <label>Nombre del Cliente</label>
+                        <input type="text" id="v-cliente" placeholder="Cliente Casual">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Categoría</label>
+                        <select id="v-categoria" onchange="alternarCamposVenta(); calcularVenta();">
+                            <option value="digital">Servicios electrónicos (Copias / Impresión)</option>
+                            <option value="articulo">Librería (Fólders / Fasteners)</option>
+                        </select>
+                    </div>
+
+                    <div id="form-servicios">
+                        <div class="form-group">
+                            <label>Tipo de Servicio</label>
+                            <select id="v-servicio" onchange="calcularVenta()">
+                                <option value="fotocopia">Fotocopia</option>
+                                <option value="impresion">Impresión</option>
+                                <option value="escaneo">Escaneo</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tinta / Color</label>
+                            <select id="v-tipo" onchange="calcularVenta()">
+                                <option value="bn">Blanco y Negro (B/N)</option>
+                                <option value="color">A Color Full</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="form-articulos" class="hidden">
+                        <div class="form-group">
+                            <label>Artículo</label>
+                            <select id="v-articulo" onchange="calcularVenta()">
+                                <option value="folder">Fólder Manila</option>
+                                <option value="fastener">Fastener metálico</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Cantidad</label>
+                        <input type="number" id="v-cantidad" value="1" min="1" oninput="calcularVenta()">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fa-solid fa-credit-card" style="color:var(--primary-color);"></i> 2. Transacción</h3>
+                    
+                    <div class="form-group">
+                        <label>Método de Pago</label>
+                        <select id="v-metodo" onchange="alternarMetodoPago()">
+                            <option value="efectivo">💵 Efectivo Físico</option>
+                            <option value="yape">📱 Código QR / Yape</option>
+                        </select>
+                    </div>
+
+                    <div class="total-box" id="v-total">Total a Pagar: S/. 0.00</div>
+                    
+                    <div class="form-group" id="container-paga-con">
+                        <label>Monto Recibido (S/.)</label>
+                        <input type="number" id="v-pago" value="0" step="0.10" oninput="calcularVenta()">
+                    </div>
+                    
+                    <div class="vuelto-box" id="v-vuelto">Vuelto: S/. 0.00</div>
+                    <button style="background: var(--success-color); box-shadow: 0 0 15px var(--success-color); color: #000;" onclick="registrarVenta()"><i class="fa-solid fa-circle-check"></i> Ejecutar Operación</button>
+                    
+                    <div style="margin-top: 22px; font-size: 13px;">
+                        <div style="margin-bottom:6px;">Fólders: <span id="stock-badge-folder" class="badge-stock stock-ok">0 u.</span></div>
+                        <div>Fasteners: <span id="stock-badge-fastener" class="badge-stock stock-ok">0 u.</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-reportes" class="tab-content hidden">
+            <h3>Cantidades Despachadas</h3>
+            <div class="report-grid">
+                <div class="report-card"><h4>Copias</h4><p id="rep-copias">0</p></div>
+                <div class="report-card"><h4>Impresiones</h4><p id="rep-impresiones">0</p></div>
+                <div class="report-card"><h4>Escaneos</h4><p id="rep-escaneos">0</p></div>
+                <div class="report-card"><h4>Fólders</h4><p id="rep-folders">0</p></div>
+                <div class="report-card"><h4>Fasteners</h4><p id="rep-fasteners">0</p></div>
+            </div>
+
+            <div class="report-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 25px;">
+                <div class="report-card" style="border-color: var(--success-color); background: rgba(57, 255, 20, 0.03);">
+                    <h4 style="color:var(--success-color)"><i class="fa-solid fa-money-bill-wave"></i> Efectivo</h4>
+                    <p id="rep-caja-efectivo" style="font-size:22px; color:var(--success-color)">S/. 0.00</p>
+                </div>
+                <div class="report-card" style="border-color: #c084fc; background: rgba(157, 78, 221, 0.03);">
+                    <h4 style="color:#c084fc"><i class="fa-solid fa-mobile-screen-button"></i> Yape</h4>
+                    <p id="rep-caja-yape" style="font-size:22px; color:#c084fc">S/. 0.00</p>
+                </div>
+                <div class="report-card" style="border-color: var(--primary-color); background: rgba(0, 255, 204, 0.03);">
+                    <h4 style="color:var(--primary-color)"><i class="fa-solid fa-vault"></i> Caja General</h4>
+                    <p id="rep-dinero" style="font-size: 22px; color:var(--primary-color)">S/. 0.00</p>
+                </div>
+            </div>
+
+            <h3>Historial de Operaciones</h3>
+            <div class="historial-box">
+                <table class="table-historial">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Registro</th>
+                            <th>Cliente</th>
+                            <th>Detalle</th>
+                            <th>Canal</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-transacciones"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-config" class="tab-content hidden">
+            
+            <div class="tg-menu-group">
+                <div class="tg-menu-item" onclick="abrirSubPanel('panel-apariencia')">
+                    <div class="tg-item-left"><i class="fa-solid fa-palette"></i> Paleta Visual Neon</div>
+                    <div class="tg-item-right"><span id="txt-tema-actual">Claro</span> <span class="tg-arrow"><i class="fa-solid fa-chevron-right"></i></span></div>
+                </div>
+                <div class="tg-menu-item" onclick="abrirSubPanel('panel-fondo')">
+                    <div class="tg-item-left"><i class="fa-solid fa-image"></i> Papel Tapiz UI</div>
+                    <div class="tg-item-right"><span>Configurar</span> <span class="tg-arrow"><i class="fa-solid fa-chevron-right"></i></span></div>
+                </div>
+                <div class="tg-menu-item" onclick="abrirSubPanel('panel-perfil')">
+                    <div class="tg-item-left"><i class="fa-solid fa-building"></i> Perfil de Gremio / Empresa</div>
+                    <div class="tg-item-right"><span>Ver Fijo</span> <span class="tg-arrow"><i class="fa-solid fa-chevron-right"></i></span></div>
+                </div>
+            </div>
+
+            <div class="tg-menu-group">
+                <div class="tg-menu-item" onclick="abrirSubPanel('panel-inventario')">
+                    <div class="tg-item-left"><i class="fa-solid fa-box-archive"></i> Inventario de Items</div>
+                    <div class="tg-item-right"><span>Precios / Stock</span> <span class="tg-arrow"><i class="fa-solid fa-chevron-right"></i></span></div>
+                </div>
+                <div class="tg-menu-item" onclick="abrirSubPanel('panel-tarifas')">
+                    <div class="tg-item-left"><i class="fa-solid fa-tags"></i> Tarifas de Skills / Servicios</div>
+                    <div class="tg-item-right"><span>Servicios</span> <span class="tg-arrow"><i class="fa-solid fa-chevron-right"></i></span></div>
+                </div>
+            </div>
+
+            <div class="tg-menu-group">
+                <div class="tg-menu-item" onclick="cerrarSesion()" style="color: var(--danger-color);">
+                    <div class="tg-item-left"><i class="fa-solid fa-right-from-bracket" style="color:var(--danger-color)"></i> Desconectar Servidor</div>
+                    <div class="tg-item-right"><span class="tg-arrow"><i class="fa-solid fa-chevron-right"></i></span></div>
+                </div>
+            </div>
+
+            <div id="sub-paneles-config">
+                
+                <div id="panel-apariencia" class="tg-panel-ajuste hidden">
+                    <h4>Tema Visual</h4>
+                    <div class="form-group">
+                        <select id="cfg-tema" onchange="cambiarTema(this.value)">
+                            <option value="light">Modo Cyan Eléctrico</option>
+                            <option value="dark">Modo Rosa Cyberpunk</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="panel-fondo" class="tg-panel-ajuste hidden">
+                    <h4>Personalizar Entorno de Trabajo</h4>
+                    <div class="form-group">
+                        <label>Subir imagen local</label>
+                        <input type="file" id="cfg-fondo-file" accept="image/*" onchange="cambiarFondoArchivo(this)">
+                    </div>
+                    <div class="form-group">
+                        <label>Enlace de imagen en red</label>
+                        <input type="text" id="cfg-fondo-url" placeholder="https://url-de-tu-imagen.com/foto.jpg">
+                    </div>
+                    <button onclick="cambiarFondoURL()"><i class="fa-solid fa-wand-magic-sparkles"></i> Fijar Fondo</button>
+                    <button onclick="borrarFondo()" style="background: var(--danger-color); box-shadow:none; margin-top: 10px;">Remover Imagen</button>
+                </div>
+
+                <div id="panel-perfil" class="tg-panel-ajuste hidden">
+                    <h4>Identidad Corporativa (Bloqueada)</h4>
+                    <div class="form-group">
+                        <label>Nombre Comercial</label>
+                        <input type="text" id="c-nombre" disabled style="opacity: 0.6; cursor: not-allowed;">
+                    </div>
+                    <p style="font-size: 12px; color: var(--danger-color); margin-top: -5px;"><i class="fa-solid fa-lock"></i> El nombre y el logo se mantienen por defecto con la identidad base de ZulukCopy.</p>
+                </div>
+
+                <div id="panel-inventario" class="tg-panel-ajuste hidden">
+                    <h4>Logística e Inventario</h4>
+                    <div class="form-group"><label>Costo Fólder Manila (S/.)</label><input type="number" id="p-fold-p" step="0.01"></div>
+                    <div class="form-group"><label>Existencias Fólder Manila</label><input type="number" id="p-fold-s"></div>
+                    <hr style="margin: 15px 0; border-color: rgba(255,255,255,0.1);">
+                    <div class="form-group"><label>Costo Fastener (S/.)</label><input type="number" id="p-fast-p" step="0.01"></div>
+                    <div class="form-group"><label>Existencias Fastener</label><input type="number" id="p-fast-s"></div>
+                    <button onclick="guardarInventario()">Actualizar Stock</button>
+                </div>
+
+                <div id="panel-tarifas" class="tg-panel-ajuste hidden">
+                    <h4>Matriz de Tarifas por Categoría</h4>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px; margin-bottom: 15px;">
+                        <div>
+                            <div class="form-group"><label>Fotocopia B/N</label><input type="number" id="p-foto-bn" step="0.01"></div>
+                            <div class="form-group"><label>Fotocopia Col</label><input type="number" id="p-foto-col" step="0.01"></div>
+                        </div>
+                        <div>
+                            <div class="form-group"><label>Impresión B/N</label><input type="number" id="p-imp-bn" step="0.01"></div>
+                            <div class="form-group"><label>Impresión Col</label><input type="number" id="p-imp-col" step="0.01"></div>
+                        </div>
+                        <div>
+                            <div class="form-group"><label>Escaneo B/N</label><input type="number" id="p-esc-bn" step="0.01"></div>
+                            <div class="form-group"><label>Escaneo Col</label><input type="number" id="p-esc-col" step="0.01"></div>
+                        </div>
+                    </div>
+                    <button onclick="guardarPrecios()">Guardar Tarifas</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let usuariosDB = JSON.parse(localStorage.getItem('printlab_usuarios_db')) || {};
+    let usuarioActivo = null; 
+    let config = {}; 
+    const logoPorDefecto = "Gemini_Generated_Image_qp8csaqp8csaqp8c.jpeg";
+
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        let icon = '<i class="fa-solid fa-circle-check"></i>';
+        if(type === 'error') icon = '<i class="fa-solid fa-circle-xmark"></i>';
+        if(type === 'info') icon = '<i class="fa-solid fa-circle-info"></i>';
+
+        toast.innerHTML = `${icon} <span>${message}</span>`;
+        container.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.animation = 'toastOut 0.3s ease-in forwards';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    if (Object.keys(usuariosDB).length === 0) {
+        usuariosDB["admin"] = crearEstructuraBase("ZulukCopy", "1234");
+        localStorage.setItem('printlab_usuarios_db', JSON.stringify(usuariosDB));
+    }
+
+    function crearEstructuraBase(nombreEmpresa, password) {
+        return {
+            nombre: nombreEmpresa, pass: password, logo: logoPorDefecto, tema: "light", fondo: "",
+            precios: {
+                fotocopia: { bn: 0.30, color: 1.00 },
+                impresion: { bn: 0.50, color: 1.00 },
+                escaneo: { bn: 0.50, color: 1.00 }
+            },
+            articulos: {
+                folder: { precio: 1.00, stock: 50 },
+                fastener: { precio: 0.50, stock: 100 }
+            },
+            reportes: { copias: 0, impresiones: 0, escaneos: 0, folders: 0, fasteners: 0, dinero: 0.0, dineroEfectivo: 0.0, dineroYape: 0.0 },
+            transacciones: []
+        };
+    }
+
+    function salvarDatosDeUsuarioActual() {
+        if (usuarioActivo) {
+            usuariosDB[usuarioActivo] = config;
+            localStorage.setItem('printlab_usuarios_db', JSON.stringify(usuariosDB));
+        }
+    }
+
+    function login() {
+        const userIn = document.getElementById('login-user').value.trim().toLowerCase();
+        const passIn = document.getElementById('login-pass').value;
+
+        if (!userIn || !passIn) return showToast("Por favor escribe usuario y contraseña.", "error");
+
+        if (usuariosDB[userIn] && usuariosDB[userIn].pass === passIn) {
+            usuarioActivo = userIn;
+            config = usuariosDB[userIn]; 
+
+            if (!config.logo) config.logo = logoPorDefecto;
+            if (!config.transacciones) config.transacciones = [];
+            if (config.reportes.dineroEfectivo === undefined) config.reportes.dineroEfectivo = config.reportes.dinero;
+            if (config.reportes.dineroYape === undefined) config.reportes.dineroYape = 0.0;
+
+            document.getElementById('usuario-activo-txt').innerText = usuarioActivo;
+            document.getElementById('logo-actual').src = config.logo;
+            document.getElementById('nombre-empresa-txt').innerText = config.nombre;
+            
+            cambiarTema(config.tema || 'light');
+            document.getElementById('cfg-tema').value = config.tema || 'light';
+            
+            if (config.fondo) {
+                document.body.style.backgroundImage = `url('${config.fondo}')`;
+            } else {
+                document.body.style.backgroundImage = '';
+            }
+            
+            cargarConfigEnInputs();
+            alternarMetodoPago();
+            calcularVenta();
+            actualizarReportesEnPantalla();
+            mostrarPantalla('view-main');
+            showToast(`¡Acceso Concedido, Héroe ${usuarioActivo}!`, 'info');
+        } else {
+            showToast("Credenciales incorrectas en el servidor.", "error");
+        }
+    }
+
+    function registrar() {
+        const user = document.getElementById('reg-user').value.trim().toLowerCase();
+        const pass = document.getElementById('reg-pass').value;
+        const passConfirm = document.getElementById('reg-pass-confirm').value;
+
+        if (!user || !pass || !passConfirm) return showToast("Completa todos los campos obligatorios.", "error");
+        if (pass !== passConfirm) return showToast("Las contraseñas no coinciden. Por favor verifícalas.", "error");
+        if (usuariosDB[user]) return showToast("Este usuario ya existe.", "error");
+
+        // Se usa ZulukCopy por defecto al registrarse
+        usuariosDB[user] = crearEstructuraBase("ZulukCopy", pass);
+
+        localStorage.setItem('printlab_usuarios_db', JSON.stringify(usuariosDB));
+        showToast("¡Nuevo perfil creado con éxito!", "success");
+        mostrarPantalla('view-login');
+        document.getElementById('login-user').value = user;
+        document.getElementById('login-pass').value = pass;
+        document.getElementById('reg-pass').value = "";
+        document.getElementById('reg-pass-confirm').value = "";
+    }
+
+    function cerrarSesion() {
+        salvarDatosDeUsuarioActual(); 
+        usuarioActivo = null;
+        config = {};
+        document.getElementById('login-user').value = "";
+        document.getElementById('login-pass').value = "";
+        mostrarPantalla('view-login');
+        showToast("Conexión finalizada de manera segura.", "info");
+    }
+
+    function alternarMetodoPago() {
+        const metodo = document.getElementById('v-metodo').value;
+        const containerPaga = document.getElementById('container-paga-con');
+        if (metodo === 'yape') {
+            containerPaga.classList.add('hidden');
+        } else {
+            containerPaga.classList.remove('hidden');
+        }
+        calcularVenta();
+    }
+
+    function registrarVenta() {
+        const category = document.getElementById('v-categoria').value;
+        const cantidad = parseInt(document.getElementById('v-cantidad').value) || 1;
+        const metodo = document.getElementById('v-metodo').value;
+        let pago = parseFloat(document.getElementById('v-pago').value) || 0;
+        let inputCliente = document.getElementById('v-cliente').value.trim();
+        let total = 0;
+        let detalleText = "";
+
+        if (inputCliente === "") {
+            const numSiguiente = (config.transacciones ? config.transacciones.length : 0) + 1;
+            inputCliente = `Cliente ${numSiguiente}`;
+        }
+
+        if (category === 'digital') {
+            const servicio = document.getElementById('v-servicio').value;
+            const tipo = document.getElementById('v-tipo').value;
+            total = config.precios[servicio][tipo] * cantidad;
+            
+            if (metodo === 'efectivo' && pago < total) return showToast("Falta saldo físico para completar.", "error");
+            
+            if(servicio === 'fotocopia') config.reportes.copias += cantidad;
+            if(servicio === 'impresion') config.reportes.impresiones += cantidad;
+            if(servicio === 'escaneo') config.reportes.escaneos += cantidad;
+
+            detalleText = `${servicio.toUpperCase()} (${tipo.toUpperCase()}) x${cantidad}`;
+        } else {
+            const articulo = document.getElementById('v-articulo').value;
+            total = config.articulos[articulo].precio * cantidad;
+
+            if (metodo === 'efectivo' && pago < total) return showToast("Monto recibido insuficiente.", "error");
+            if (config.articulos[articulo].stock < cantidad) {
+                return showToast(`¡Item agotado! Solo quedan ${config.articulos[articulo].stock}u.`, "error");
+            }
+
+            config.articulos[articulo].stock -= cantidad;
+            if(articulo === 'folder') config.reportes.folders += cantidad;
+            if(articulo === 'fastener') config.reportes.fasteners += cantidad;
+
+            detalleText = `${articulo === 'folder' ? 'Fólder' : 'Fastener'} x${cantidad}`;
+        }
+
+        const ahora = new Date();
+        const opcionesFecha = { day: '2-digit', month: 'short', year: 'numeric' };
+        const opcionesHora = { hour: '2-digit', minute: '2-digit', hour12: true };
+        const tiempoCompleto = `${ahora.toLocaleDateString('es-PE', opcionesFecha)} - ${ahora.toLocaleTimeString('es-PE', opcionesHora)}`;
+
+        const nuevaTransaccion = {
+            id: (config.transacciones.length + 1),
+            fecha: tiempoCompleto,
+            cliente: inputCliente,
+            detalle: detalleText,
+            metodo: metodo,
+            monto: total
+        };
+        
+        config.transacciones.unshift(nuevaTransaccion);
+        config.reportes.dinero += total;
+
+        if (metodo === 'yape') {
+            config.reportes.dineroYape += total;
+        } else {
+            config.reportes.dineroEfectivo += total;
+        }
+        
+        salvarDatosDeUsuarioActual(); 
+        showToast(`✔ Transacción completada via (${metodo.toUpperCase()})`);
+        
+        document.getElementById('v-cantidad').value = 1;
+        document.getElementById('v-pago').value = 0;
+        document.getElementById('v-cliente').value = "";
+        
+        cargarConfigEnInputs(); 
+        calcularVenta();
+        actualizarReportesEnPantalla();
+    }
+
+    function actualizarReportesEnPantalla() {
+        document.getElementById('rep-copias').innerText = config.reportes.copias;
+        document.getElementById('rep-impresiones').innerText = config.reportes.impresiones;
+        document.getElementById('rep-escaneos').innerText = config.reportes.escaneos;
+        document.getElementById('rep-folders').innerText = config.reportes.folders;
+        document.getElementById('rep-fasteners').innerText = config.reportes.fasteners;
+        
+        document.getElementById('rep-dinero').innerText = `S/. ${config.reportes.dinero.toFixed(2)}`;
+        document.getElementById('rep-caja-efectivo').innerText = `S/. ${(config.reportes.dineroEfectivo || 0).toFixed(2)}`;
+        document.getElementById('rep-caja-yape').innerText = `S/. ${(config.reportes.dineroYape || 0).toFixed(2)}`;
+
+        document.getElementById('stock-badge-folder').innerText = `${config.articulos.folder.stock} u.`;
+        document.getElementById('stock-badge-folder').className = config.articulos.folder.stock <= 5 ? "badge-stock stock-low" : "badge-stock stock-ok";
+
+        document.getElementById('stock-badge-fastener').innerText = `${config.articulos.fastener.stock} u.`;
+        document.getElementById('stock-badge-fastener').className = config.articulos.fastener.stock <= 10 ? "badge-stock stock-low" : "badge-stock stock-ok";
+
+        const tablaBody = document.getElementById('lista-transacciones');
+        tablaBody.innerHTML = "";
+
+        if(config.transacciones.length === 0) {
+            tablaBody.innerHTML = `<tr><td colspan="6" style="text-align:center; opacity:0.6; padding: 20px;">Sin transacciones en este bloque de memoria.</td></tr>`;
+        } else {
+            config.transacciones.forEach(t => {
+                const badgeMetodo = t.metodo === 'yape' ? 
+                    `<span class="tag-pago tag-yape"><i class="fa-solid fa-mobile-screen"></i> Yape</span>` : 
+                    `<span class="tag-pago tag-efectivo"><i class="fa-solid fa-money-bill"></i> Efectivo</span>`;
+
+                const fila = document.createElement('tr');
+                fila.innerHTML = `
+                    <td><strong>#${t.id}</strong></td>
+                    <td style="opacity:0.7; font-size:13px;">${t.fecha}</td>
+                    <td><strong>${t.cliente}</strong></td>
+                    <td>${t.detalle}</td>
+                    <td>${badgeMetodo}</td>
+                    <td style="font-weight:700; color:var(--success-color)">+ S/. ${t.monto.toFixed(2)}</td>
+                `;
+                tablaBody.appendChild(fila);
+            });
+        }
+    }
+
+    function calcularVenta() {
+        if (!usuarioActivo) return;
+        const category = document.getElementById('v-categoria').value;
+        const cantidad = parseInt(document.getElementById('v-cantidad').value) || 1;
+        const metodo = document.getElementById('v-metodo').value;
+        let precioUnitario = 0;
+
+        if (category === 'digital') {
+            const servicio = document.getElementById('v-servicio').value;
+            const tipo = document.getElementById('v-tipo').value;
+            precioUnitario = config.precios[servicio][tipo];
+        } else {
+            const articulo = document.getElementById('v-articulo').value;
+            precioUnitario = config.articulos[articulo].precio;
+        }
+
+        const total = precioUnitario * cantidad;
+        document.getElementById('v-total').innerText = `Total Créditos: S/. ${total.toFixed(2)}`;
+
+        const vueltoBox = document.getElementById('v-vuelto');
+        if (metodo === 'yape') {
+            vueltoBox.innerText = "Sincronización Exacta";
+            vueltoBox.style.color = "var(--primary-color)";
+        } else {
+            const pago = parseFloat(document.getElementById('v-pago').value) || 0;
+            if (pago >= total) {
+                vueltoBox.innerText = `Reembolso: S/. ${(pago - total).toFixed(2)}`;
+                vueltoBox.style.color = "var(--success-color)";
+            } else {
+                vueltoBox.innerText = "Créditos Insuficientes";
+                vueltoBox.style.color = "var(--danger-color)";
+            }
+        }
+    }
+
+    function abrirSubPanel(idPanel) {
+        document.querySelectorAll('.tg-panel-ajuste').forEach(p => p.classList.add('hidden'));
+        document.getElementById(idPanel).classList.remove('hidden');
+    }
+
+    function cambiarTema(tema) {
+        if(config) config.tema = tema;
+        document.documentElement.setAttribute('data-theme', tema);
+        document.getElementById('txt-tema-actual').innerText = tema === 'dark' ? 'Rosa Cyber' : 'Cyan Eléctrico';
+        salvarDatosDeUsuarioActual();
+    }
+
+    function cambiarFondoArchivo(input) {
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = function() {
+                config.fondo = reader.result;
+                document.body.style.backgroundImage = `url('${reader.result}')`;
+                salvarDatosDeUsuarioActual();
+                showToast("Matriz de fondo inyectada.");
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function cambiarFondoURL() {
+        const url = document.getElementById('cfg-fondo-url').value.trim();
+        if (url) {
+            config.fondo = url;
+            document.body.style.backgroundImage = `url('${url}')`;
+            salvarDatosDeUsuarioActual();
+            showToast("Enlace de entorno fijado.");
+        }
+    }
+
+    function borrarFondo() {
+        config.fondo = "";
+        document.body.style.backgroundImage = '';
+        document.getElementById('cfg-fondo-url').value = "";
+        document.getElementById('cfg-fondo-file').value = "";
+        salvarDatosDeUsuarioActual();
+        showToast("Fondo devuelto al estado nativo.");
+    }
+
+    function guardarInventario() {
+        const pFold = parseFloat(document.getElementById('p-fold-p').value);
+        const sFold = parseInt(document.getElementById('p-fold-s').value);
+        const pFast = parseFloat(document.getElementById('p-fast-p').value);
+        const sFast = parseInt(document.getElementById('p-fast-s').value);
+
+        config.articulos.folder.precio = isNaN(pFold) ? config.articulos.folder.precio : pFold;
+        config.articulos.folder.stock = isNaN(sFold) ? config.articulos.folder.stock : sFold;
+        config.articulos.fastener.precio = isNaN(pFast) ? config.articulos.fastener.precio : pFast;
+        config.articulos.fastener.stock = isNaN(sFast) ? config.articulos.fastener.stock : sFast;
+
+        salvarDatosDeUsuarioActual();
+        showToast("✔ Depósito de items reabastecido.");
+        actualizarReportesEnPantalla();
+        calcularVenta();
+    }
+
+    function guardarPrecios() {
+        config.precios.fotocopia.bn = parseFloat(document.getElementById('p-foto-bn').value);
+        config.precios.fotocopia.color = parseFloat(document.getElementById('p-foto-col').value);
+        config.precios.impresion.bn = parseFloat(document.getElementById('p-imp-bn').value);
+        config.precios.impresion.color = parseFloat(document.getElementById('p-imp-col').value);
+        config.precios.escaneo.bn = parseFloat(document.getElementById('p-esc-bn').value);
+        config.precios.escaneo.color = parseFloat(document.getElementById('p-esc-col').value);
+        
+        salvarDatosDeUsuarioActual();
+        showToast("Matriz de valores modificada.");
+        calcularVenta();
+    }
+
+    function cargarConfigEnInputs() {
+        document.getElementById('p-foto-bn').value = config.precios.fotocopia.bn;
+        document.getElementById('p-foto-col').value = config.precios.fotocopia.color;
+        document.getElementById('p-imp-bn').value = config.precios.impresion.bn;
+        document.getElementById('p-imp-col').value = config.precios.impresion.color;
+        document.getElementById('p-esc-bn').value = config.precios.escaneo.bn;
+        document.getElementById('p-esc-col').value = config.precios.escaneo.color;
+        
+        document.getElementById('p-fold-p').value = config.articulos.folder.precio;
+        document.getElementById('p-fold-s').value = config.articulos.folder.stock;
+        document.getElementById('p-fast-p').value = config.articulos.fastener.precio;
+        document.getElementById('p-fast-s').value = config.articulos.fastener.stock;
+        document.getElementById('c-nombre').value = config.nombre;
+    }
+
+    function alternarCamposVenta() {
+        const cat = document.getElementById('v-categoria').value;
+        if(cat === 'digital') {
+            document.getElementById('form-servicios').classList.remove('hidden');
+            document.getElementById('form-articulos').classList.add('hidden');
+        } else {
+            document.getElementById('form-servicios').classList.add('hidden');
+            document.getElementById('form-articulos').classList.remove('hidden');
+        }
+    }
+
+    function cambiarTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.remove('hidden');
+        event.currentTarget.classList.add('active');
+    }
+
+    function mostrarPantalla(id) {
+        document.getElementById('view-login').classList.add('hidden');
+        document.getElementById('view-register').classList.add('hidden');
+        document.getElementById('view-main').classList.add('hidden');
+        document.getElementById('header-empresa').classList.add('hidden');
+        
+        document.getElementById(id).classList.remove('hidden');
+        if(id === 'view-main' || id === 'view-login') {
+            document.getElementById('header-empresa').classList.remove('hidden');
+        }
+    }
+</script>
+</body>
+</html>
